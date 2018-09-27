@@ -170,13 +170,12 @@ def writeOutput():
     ### Student Code Goes here
 
 
-def bfs_search(initial_state):
+def bfs_search(initial_state, goal_config):
 
     """BFS search"""
-
     print 'BFS algorithm working'
 
-    puzzle_config=initial_state.config
+    puzzle_config = initial_state.config
     print puzzle_config
 
     fringe=Frontier()
@@ -193,7 +192,7 @@ def bfs_search(initial_state):
         explored.append(current_state)
         print 2, explored
 
-        if test_goal(current_state):
+        if test_goal(current_state, goal_config):
             return 'SUCCESS'
 
         nodes_to_expand=current_state.expand()
@@ -207,12 +206,15 @@ def bfs_search(initial_state):
 
     return 'FAILURE'
 
-def test_goal(puzzle_state):
+def test_goal(puzzle_state, goal_config):
 
     """test the state is the goal state or not"""
-
+    if puzzle_state.config==goal_config:
+        return [True, puzzle_state]
+    else:
+        return False
     #Returns False for testing purposes
-    return False
+    #return False
 
 
 class Board(object):
@@ -260,11 +262,13 @@ def main():
 
     size = int(math.sqrt(len(begin_state)))
 
+    goal_config = tuple(x for x in range(size**2))
+
     hard_state = PuzzleState(begin_state, size)
 
     if sm == "bfs":
 
-        print bfs_search(hard_state)
+        print bfs_search(hard_state, goal_config)
 
     elif sm == "dfs":
 
@@ -287,6 +291,7 @@ def main():
     # toy = Board(begin_state)
     # print toy.get_board()
     #test_frontier = Frontier()
+    print goal_config
 
 
 if __name__ == '__main__':
