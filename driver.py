@@ -176,7 +176,7 @@ def bfs_search(initial_state, goal_config):
     print 'BFS algorithm working'
 
     puzzle_config = initial_state.config
-    print puzzle_config
+    print 'Puzzle config: ', puzzle_config
 
     fringe=Frontier()
 
@@ -202,7 +202,7 @@ def bfs_search(initial_state, goal_config):
 
         nodes_to_expand=current_state.expand()
         for state in nodes_to_expand:
-            print state.config
+            print 'Expanded: ', state.config
 
     # Print Fringe
     for i, state in enumerate(fringe.frontier_list):
