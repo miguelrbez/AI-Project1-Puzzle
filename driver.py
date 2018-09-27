@@ -184,35 +184,59 @@ def bfs_search(initial_state, goal_config):
 
     explored=[]
 
-    while fringe.frontier_list:
+    # Count to limit number of nodes to explore
+    count = 0
+    while fringe.frontier_list and count<11:
+        count += 1
 
-        #Print Fringe
-        for i, state in enumerate(fringe.frontier_list):
-            print 'Fringe: ', i, state.config
-
+        # Dequeue state from Fringe
         current_state = fringe.fdequeue()
 
-        explored.append(current_state)
-        #Print Explored
-        for i, state in enumerate(explored):
-            print 'Explored: ', i, state.config
+        # Generate list of config from Fringe states
+        config_list_frontier = [fringe_state.config for fringe_state in fringe.frontier_list]
+        #print config_list_frontier
 
+        # Append exploring state to Explored
+        explored.append(current_state)
+
+        # Generate list of config from Explored states
+        config_list_explored = [explored_state.config for explored_state in explored]
+        #print config_list_explored
+
+        # Check solution
         if test_goal(current_state, goal_config):
+
+            # Print Fringe
+            for i, state in enumerate(fringe.frontier_list):
+                print 'Fringe: ', i + 1, state.config
+
+            # Print Explored
+            for i, state in enumerate(explored):
+                print 'Explored: ', i + 1, state.config
+
+            print 'BFS algorithm stop'
+
             return 'SUCCESS'
 
+        # Expand nodes and add them to Fringe if not there neither in Explored already
         nodes_to_expand=current_state.expand()
-        for state in nodes_to_expand:
-            print 'Expanded: ', state.config
+
+        for expanded_node in nodes_to_expand:
+            # Print Expanded
+            #print 'Expanded: ', expanded_node.config
+
+            if expanded_node.config not in config_list_frontier and expanded_node.config not in config_list_explored:
+                fringe.fenqueue(expanded_node)
 
     # Print Fringe
     for i, state in enumerate(fringe.frontier_list):
-        print 'Fringe: ', i, state.config
+        print 'Fringe: ', i+1, state.config
 
     # Print Explored
     for i, state in enumerate(explored):
-        print 'Explored: ', i, state.config
+        print 'Explored: ', i+1, state.config
 
-    print 5, 'BFS algorithm stop'
+    print 'BFS algorithm stop'
 
     return 'FAILURE'
 
@@ -305,8 +329,9 @@ def main():
     # print toy.get_board()
     # toy = Board(begin_state)
     # print toy.get_board()
-    #test_frontier = Frontier()
-    #print goal_config
+    # test_frontier = Frontier()
+    # test_frontier.fenqueue(hard_state)
+
 
 
 if __name__ == '__main__':
