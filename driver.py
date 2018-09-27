@@ -186,11 +186,16 @@ def bfs_search(initial_state, goal_config):
 
     while fringe.frontier_list:
 
-        print 1, fringe.frontier_list
+        #Print Fringe
+        for i, state in enumerate(fringe.frontier_list):
+            print 'Fringe: ', i, state.config
+
         current_state = fringe.fdequeue()
 
         explored.append(current_state)
-        print 2, explored
+        #Print Explored
+        for i, state in enumerate(explored):
+            print 'Explored: ', i, state.config
 
         if test_goal(current_state, goal_config):
             return 'SUCCESS'
@@ -199,9 +204,14 @@ def bfs_search(initial_state, goal_config):
         for state in nodes_to_expand:
             print state.config
 
+    # Print Fringe
+    for i, state in enumerate(fringe.frontier_list):
+        print 'Fringe: ', i, state.config
 
-    print 3, fringe.frontier_list
-    print 4, explored
+    # Print Explored
+    for i, state in enumerate(explored):
+        print 'Explored: ', i, state.config
+
     print 5, 'BFS algorithm stop'
 
     return 'FAILURE'
@@ -209,10 +219,15 @@ def bfs_search(initial_state, goal_config):
 def test_goal(puzzle_state, goal_config):
 
     """test the state is the goal state or not"""
+
     if puzzle_state.config==goal_config:
+
         return [True, puzzle_state]
+
     else:
+
         return False
+
     #Returns False for testing purposes
     #return False
 
@@ -291,7 +306,7 @@ def main():
     # toy = Board(begin_state)
     # print toy.get_board()
     #test_frontier = Frontier()
-    print goal_config
+    #print goal_config
 
 
 if __name__ == '__main__':
