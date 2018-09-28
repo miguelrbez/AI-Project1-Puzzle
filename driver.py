@@ -175,20 +175,14 @@ def bfs_search(initial_state, goal_config):
     """BFS search"""
     print 'BFS algorithm working'
 
-    puzzle_config = initial_state.config
-    print 'Puzzle config: ', puzzle_config
-
     fringe=Frontier()
 
     fringe.fenqueue(initial_state)
 
-    # Append current state config to Fringe config  list
-    fringe.frontier_config_list.append(initial_state.config)
-    # print config_list_frontier
-
     explored=[]
 
-    explored_config_list = []
+    # Initialize Fringe/Explored config list
+    fringe_explored_config_list = []
 
     # Count to limit number of nodes to explore
     count = 0
@@ -203,9 +197,9 @@ def bfs_search(initial_state, goal_config):
         # Append exploring state to Explored
         explored.append(current_state)
 
-        # Generate list of config from Explored states
-        explored_config_list.append(current_state)
-        #print config_list_explored
+        # Append current state string config to Fringe/Explored config list
+        board_config = Board(current_state.config)
+        fringe_explored_config_list.append(board_config.get_board())
 
         # Check solution
         if test_goal(current_state, goal_config):
@@ -218,6 +212,7 @@ def bfs_search(initial_state, goal_config):
             #             # for i, state in enumerate(explored):
             #             #     print 'Explored: ', i + 1, state.config
 
+            print 'Final count: ', count
             print 'BFS algorithm stop'
 
             return 'SUCCESS'
@@ -229,8 +224,12 @@ def bfs_search(initial_state, goal_config):
             # Print Expanded
             #print 'Expanded: ', expanded_node.config
 
-            if expanded_node.config not in fringe.frontier_config_list and expanded_node.config not in explored_config_list:
+            # Create board config of expanded node
+            expanded_board = Board(expanded_node.config)
+
+            if expanded_board.get_board() not in fringe_explored_config_list:
                 fringe.fenqueue(expanded_node)
+                fringe_explored_config_list.append(expanded_board.get_board())
 
     # Print Fringe
     for i, state in enumerate(fringe.frontier_list):
@@ -263,15 +262,17 @@ def test_goal(puzzle_state, goal_config):
 class Board(object):
 
     def __init__(self, config):
+
         self.config = config
 
     def get_board(self):
-        boardstr = ''
 
-        for i in self.config:
-            boardstr += str(i)
+        config_str = ''
 
-        return boardstr
+        for tile in self.config:
+            config_str += str(tile)
+
+        return config_str
 
 
 # noinspection SpellCheckingInspection
