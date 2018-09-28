@@ -8,6 +8,9 @@ import sys
 
 import math
 
+import psutil
+print("psutil", psutil.Process().memory_info().rss)
+
 
 #### SKELETON CODE ####
 
@@ -186,10 +189,12 @@ def bfs_search(initial_state, goal_config):
 
     # Count to limit number of nodes to explore
     count = 0
-    while fringe.frontier_list and count<54200:
+    print("psutil", psutil.Process().memory_info().rss)
+    while fringe.frontier_list and count<55200:
         count += 1
         if count%5000==0:
             print 'count ', count
+            print("psutil", psutil.Process().memory_info().rss)
 
         # Dequeue state from Fringe
         current_state = fringe.fdequeue()
@@ -229,13 +234,13 @@ def bfs_search(initial_state, goal_config):
 
                 fringe_explored_config_list.append(str(expanded_node.config))
 
-    # Print Fringe
-    for i, state in enumerate(fringe.frontier_list):
-        print 'Fringe: ', i+1, state.config
-
-    # Print Explored
-    for i, state in enumerate(explored):
-        print 'Explored: ', i+1, state.config
+    # # Print Fringe
+    # for i, state in enumerate(fringe.frontier_list):
+    #     print 'Fringe: ', i+1, state.config
+    #
+    # # Print Explored
+    # for i, state in enumerate(explored):
+    #     print 'Explored: ', i+1, state.config
 
     print 'BFS algorithm stop'
 
@@ -327,7 +332,7 @@ def main():
 
     '''Tests'''
     # testtuple = 0, 8, 7, 6, 5, 4, 3, 2, 1
-    test_list = list(begin_state)
+    #test_list = list(begin_state)
     # print test_list
     # toy = Board(testtuple)
     # print toy.get_board()
@@ -335,7 +340,7 @@ def main():
     # print toy.get_board()
     # test_frontier = Frontier()
     # test_frontier.fenqueue(hard_state)
-
+    print("psutil", psutil.Process().memory_info().rss)
 
 
 if __name__ == '__main__':
