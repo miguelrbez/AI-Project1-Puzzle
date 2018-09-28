@@ -182,37 +182,41 @@ def bfs_search(initial_state, goal_config):
 
     fringe.fenqueue(initial_state)
 
+    # Append current state config to Fringe config  list
+    fringe.frontier_config_list.append(initial_state.config)
+    # print config_list_frontier
+
     explored=[]
+
+    explored_config_list = []
 
     # Count to limit number of nodes to explore
     count = 0
-    while fringe.frontier_list and count<11:
+    while fringe.frontier_list and count<54200:
         count += 1
+        if count%5000==0:
+            print 'count ', count
 
         # Dequeue state from Fringe
         current_state = fringe.fdequeue()
-
-        # Generate list of config from Fringe states
-        config_list_frontier = [fringe_state.config for fringe_state in fringe.frontier_list]
-        #print config_list_frontier
 
         # Append exploring state to Explored
         explored.append(current_state)
 
         # Generate list of config from Explored states
-        config_list_explored = [explored_state.config for explored_state in explored]
+        explored_config_list.append(current_state)
         #print config_list_explored
 
         # Check solution
         if test_goal(current_state, goal_config):
 
-            # Print Fringe
-            for i, state in enumerate(fringe.frontier_list):
-                print 'Fringe: ', i + 1, state.config
-
-            # Print Explored
-            for i, state in enumerate(explored):
-                print 'Explored: ', i + 1, state.config
+            # # Print Fringe
+            #             # for i, state in enumerate(fringe.frontier_list):
+            #             #     print 'Fringe: ', i + 1, state.config
+            #             #
+            #             # # Print Explored
+            #             # for i, state in enumerate(explored):
+            #             #     print 'Explored: ', i + 1, state.config
 
             print 'BFS algorithm stop'
 
@@ -225,7 +229,7 @@ def bfs_search(initial_state, goal_config):
             # Print Expanded
             #print 'Expanded: ', expanded_node.config
 
-            if expanded_node.config not in config_list_frontier and expanded_node.config not in config_list_explored:
+            if expanded_node.config not in fringe.frontier_config_list and expanded_node.config not in explored_config_list:
                 fringe.fenqueue(expanded_node)
 
     # Print Fringe
@@ -276,6 +280,7 @@ class Frontier(object):
     def __init__(self):
 
         self.frontier_list = []
+        self.frontier_config_list=[]
 
     def fenqueue(self, i):
 
