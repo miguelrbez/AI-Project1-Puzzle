@@ -197,9 +197,8 @@ def bfs_search(initial_state, goal_config):
         # Append exploring state to Explored
         explored.append(current_state)
 
-        # Append current state string config to Fringe/Explored config list
-        board_config = Board(current_state.config)
-        fringe_explored_config_list.append(board_config.get_board())
+        # Append current state config to Fringe/Explored config list
+        fringe_explored_config_list.append(current_state.config)
 
         # Check solution
         if test_goal(current_state, goal_config):
@@ -224,12 +223,9 @@ def bfs_search(initial_state, goal_config):
             # Print Expanded
             #print 'Expanded: ', expanded_node.config
 
-            # Create board config of expanded node
-            expanded_board = Board(expanded_node.config)
-
-            if expanded_board.get_board() not in fringe_explored_config_list:
+            if expanded_node.config not in fringe_explored_config_list:
                 fringe.fenqueue(expanded_node)
-                fringe_explored_config_list.append(expanded_board.get_board())
+                fringe_explored_config_list.append(expanded_node.config)
 
     # Print Fringe
     for i, state in enumerate(fringe.frontier_list):
