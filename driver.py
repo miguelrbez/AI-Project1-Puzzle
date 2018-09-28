@@ -8,6 +8,9 @@ import sys
 
 import math
 
+import psutil
+print("psutil", psutil.Process().memory_info().rss)
+
 
 #### SKELETON CODE ####
 
@@ -175,45 +178,45 @@ def bfs_search(initial_state, goal_config):
     """BFS search"""
     print 'BFS algorithm working'
 
-    puzzle_config = initial_state.config
-    print 'Puzzle config: ', puzzle_config
-
     fringe=Frontier()
 
     fringe.fenqueue(initial_state)
 
     explored=[]
 
+    # Initialize Fringe/Explored config list
+    fringe_explored_config_list = []
+
     # Count to limit number of nodes to explore
     count = 0
-    while fringe.frontier_list and count<11:
+    print("psutil", psutil.Process().memory_info().rss)
+    while fringe.frontier_list and count<55200:
         count += 1
+        if count%5000==0:
+            print 'count ', count
+            print("psutil", psutil.Process().memory_info().rss)
 
         # Dequeue state from Fringe
         current_state = fringe.fdequeue()
 
-        # Generate list of config from Fringe states
-        config_list_frontier = [fringe_state.config for fringe_state in fringe.frontier_list]
-        #print config_list_frontier
-
         # Append exploring state to Explored
         explored.append(current_state)
 
-        # Generate list of config from Explored states
-        config_list_explored = [explored_state.config for explored_state in explored]
-        #print config_list_explored
+        # Append current state config to Fringe/Explored config list
+        fringe_explored_config_list.append(str(current_state.config))
 
         # Check solution
         if test_goal(current_state, goal_config):
 
-            # Print Fringe
-            for i, state in enumerate(fringe.frontier_list):
-                print 'Fringe: ', i + 1, state.config
+            # # Print Fringe
+            #             # for i, state in enumerate(fringe.frontier_list):
+            #             #     print 'Fringe: ', i + 1, state.config
+            #             #
+            #             # # Print Explored
+            #             # for i, state in enumerate(explored):
+            #             #     print 'Explored: ', i + 1, state.config
 
-            # Print Explored
-            for i, state in enumerate(explored):
-                print 'Explored: ', i + 1, state.config
-
+            print 'Final count: ', count
             print 'BFS algorithm stop'
 
             return 'SUCCESS'
@@ -225,16 +228,19 @@ def bfs_search(initial_state, goal_config):
             # Print Expanded
             #print 'Expanded: ', expanded_node.config
 
-            if expanded_node.config not in config_list_frontier and expanded_node.config not in config_list_explored:
+            if str(expanded_node.config) not in fringe_explored_config_list:
+
                 fringe.fenqueue(expanded_node)
 
-    # Print Fringe
-    for i, state in enumerate(fringe.frontier_list):
-        print 'Fringe: ', i+1, state.config
+                fringe_explored_config_list.append(str(expanded_node.config))
 
-    # Print Explored
-    for i, state in enumerate(explored):
-        print 'Explored: ', i+1, state.config
+    # # Print Fringe
+    # for i, state in enumerate(fringe.frontier_list):
+    #     print 'Fringe: ', i+1, state.config
+    #
+    # # Print Explored
+    # for i, state in enumerate(explored):
+    #     print 'Explored: ', i+1, state.config
 
     print 'BFS algorithm stop'
 
@@ -259,15 +265,17 @@ def test_goal(puzzle_state, goal_config):
 class Board(object):
 
     def __init__(self, config):
+
         self.config = config
 
     def get_board(self):
-        boardstr = ''
 
-        for i in self.config:
-            boardstr += str(i)
+        config_str = ''
 
-        return boardstr
+        for tile in self.config:
+            config_str += str(tile)
+
+        return config_str
 
 
 # noinspection SpellCheckingInspection
@@ -276,6 +284,7 @@ class Frontier(object):
     def __init__(self):
 
         self.frontier_list = []
+        self.frontier_config_list=[]
 
     def fenqueue(self, i):
 
@@ -323,7 +332,7 @@ def main():
 
     '''Tests'''
     # testtuple = 0, 8, 7, 6, 5, 4, 3, 2, 1
-    test_list = list(begin_state)
+    #test_list = list(begin_state)
     # print test_list
     # toy = Board(testtuple)
     # print toy.get_board()
@@ -331,7 +340,7 @@ def main():
     # print toy.get_board()
     # test_frontier = Frontier()
     # test_frontier.fenqueue(hard_state)
-
+    print("psutil", psutil.Process().memory_info().rss)
 
 
 if __name__ == '__main__':
