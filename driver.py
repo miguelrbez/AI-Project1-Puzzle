@@ -10,12 +10,6 @@ import math
 
 import psutil
 
-# String list to be written in 'output.txt'
-str_list=[]
-
-for i in [0, ',', psutil.Process().memory_info().rss, '\n']:
-    str_list.append(str(i))
-
 ## The Class that Represents the Puzzle
 class PuzzleState(object):
     """docstring for PuzzleState"""
@@ -222,21 +216,15 @@ def bfs_search(initial_state, goal_config):
     # Initialize Fringe/Explored config list
     fringe_explored_config_list = []
 
-    #Memory usage control
-    for i in [0, ',', psutil.Process().memory_info().rss, '\n']:
-        str_list.append(str(i))
-
     # Count to limit number of nodes to explore
     count = 0
 
-    while fringe.frontier_list and count<55600:
+    while fringe.frontier_list and count<5600:
 
         count += 1
 
         if count%5000==0:
             print 'count ', count
-            for i in [count, ',',  psutil.Process().memory_info().rss, '\n']:
-                str_list.append(str(i))
 
         # Dequeue state from Fringe
         current_state = fringe.fdequeue()
@@ -318,6 +306,9 @@ def main():
 
     hard_state = PuzzleState(begin_state, size)
 
+    # String list to be written in 'output.txt'
+    str_list = []
+
     if sm == "bfs":
 
         print bfs_search(hard_state, goal_config)
@@ -345,8 +336,10 @@ def main():
     # test_frontier = Frontier()
     # test_frontier.fenqueue(hard_state)
 
+    # Memory usage
     for i in ['final', ',', psutil.Process().memory_info().rss, '\n']:
         str_list.append(str(i))
+
     writeOutput(str_list)
 
 if __name__ == '__main__':
