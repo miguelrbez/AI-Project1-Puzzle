@@ -9,13 +9,14 @@ import sys
 import math
 
 import psutil
-print("psutil", psutil.Process().memory_info().rss)
 
+# String list to be written in 'output.txt'
+str_list=[]
 
-#### SKELETON CODE ####
+for i in [0, ',', psutil.Process().memory_info().rss, '\n']:
+    str_list.append(str(i))
 
 ## The Class that Represents the Puzzle
-
 class PuzzleState(object):
     """docstring for PuzzleState"""
 
@@ -163,15 +164,49 @@ class PuzzleState(object):
         return self.children
 
 
+class Board(object):
+
+    def __init__(self, config):
+
+        self.config = config
+
+    def get_board(self):
+
+        config_str = ''
+
+        for tile in self.config:
+            config_str += str(tile)
+
+        return config_str
+
+
+# noinspection SpellCheckingInspection
+class Frontier(object):
+
+    def __init__(self):
+
+        self.frontier_list = []
+        self.frontier_config_list=[]
+
+    def fenqueue(self, i):
+
+        self.frontier_list.append(i)
+
+    def fdequeue(self):
+
+        i = self.frontier_list[0]
+
+        self.frontier_list = self.frontier_list[1:]
+
+        return i
+
+
 # Function that Writes to output.txt
+def writeOutput(str_list):
 
-### Students need to change the method to have the corresponding parameters
+    with open('output.txt', 'w') as output_file:
 
-def writeOutput():
-    pass
-
-    ### Student Code Goes here
-
+        output_file.writelines(str_list)
 
 def bfs_search(initial_state, goal_config):
 
@@ -187,14 +222,21 @@ def bfs_search(initial_state, goal_config):
     # Initialize Fringe/Explored config list
     fringe_explored_config_list = []
 
+    #Memory usage control
+    for i in [0, ',', psutil.Process().memory_info().rss, '\n']:
+        str_list.append(str(i))
+
     # Count to limit number of nodes to explore
     count = 0
-    print("psutil", psutil.Process().memory_info().rss)
-    while fringe.frontier_list and count<55200:
+
+    while fringe.frontier_list and count<55600:
+
         count += 1
+
         if count%5000==0:
             print 'count ', count
-            print("psutil", psutil.Process().memory_info().rss)
+            for i in [count, ',',  psutil.Process().memory_info().rss, '\n']:
+                str_list.append(str(i))
 
         # Dequeue state from Fringe
         current_state = fringe.fdequeue()
@@ -261,44 +303,6 @@ def test_goal(puzzle_state, goal_config):
     #Returns False for testing purposes
     #return False
 
-
-class Board(object):
-
-    def __init__(self, config):
-
-        self.config = config
-
-    def get_board(self):
-
-        config_str = ''
-
-        for tile in self.config:
-            config_str += str(tile)
-
-        return config_str
-
-
-# noinspection SpellCheckingInspection
-class Frontier(object):
-
-    def __init__(self):
-
-        self.frontier_list = []
-        self.frontier_config_list=[]
-
-    def fenqueue(self, i):
-
-        self.frontier_list.append(i)
-
-    def fdequeue(self):
-
-        i = self.frontier_list[0]
-
-        self.frontier_list = self.frontier_list[1:]
-
-        return i
-
-
 # Main Function that reads in Input and Runs corresponding Algorithm
 
 def main():
@@ -340,8 +344,10 @@ def main():
     # print toy.get_board()
     # test_frontier = Frontier()
     # test_frontier.fenqueue(hard_state)
-    print("psutil", psutil.Process().memory_info().rss)
 
+    for i in ['final', ',', psutil.Process().memory_info().rss, '\n']:
+        str_list.append(str(i))
+    writeOutput(str_list)
 
 if __name__ == '__main__':
     main()
