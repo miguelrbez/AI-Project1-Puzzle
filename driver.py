@@ -208,6 +208,8 @@ def get_path_to_goal(goal_state, explored):
 
     path_to_goal = []
 
+    output_str_path_and_cost = []
+
     current_state_path = goal_state
 
     explored_set_path = explored
@@ -237,15 +239,19 @@ def bfs_search(initial_state, goal_config):
     # Initialize Fringe/Explored config list
     fringe_explored_config_set = set()
 
+    nodes_expanded = 0
+
+    max_search_depth = 0
+
     # Count to limit number of nodes to explore
-    count = 0
+    explored_nodes_count = -1
 
-    while fringe.frontier_list and count<55000:
+    while fringe.frontier_list and explored_nodes_count < 55000:
 
-        count -= 1
+        explored_nodes_count += 1
 
-        if count%5000==0:
-            print 'count ', count
+        if explored_nodes_count%5000==0:
+            print 'count ', explored_nodes_count
             print psutil.Process().memory_info().rss
 
         # Dequeue state from Fringe
@@ -272,11 +278,14 @@ def bfs_search(initial_state, goal_config):
             #             # for i, state in enumerate(explored):
             #             #     print 'Explored: ', i + 1, state.config
 
-            print 'Final count: ', count
+            print 'Final count: ', explored_nodes_count
             print 'BFS algorithm stop'
 
-            print get_path_to_goal(current_state, explored)
-            output_str_list.extend(['path_to_goal: ', str(get_path_to_goal(current_state, explored)), '\n'])
+            path_to_goal = get_path_to_goal(current_state, explored)
+            output_str_list.extend(['path_to_goal: ', str(path_to_goal), '\n', 'cost_of_path: ', str(len(path_to_goal)), '\n'])
+            output_str_list.extend(['nodes_expanded: ', str(explored_nodes_count), '\n'])
+            output_str_list.extend({'search_depth: ', str(len(path_to_goal)), '\n'})
+            output_str_list.extend({'max_search_depth: ', str(3)})
 
             return output_str_list
 
@@ -284,8 +293,6 @@ def bfs_search(initial_state, goal_config):
         nodes_to_expand=current_state.expand()
 
         for expanded_node in nodes_to_expand:
-            # Print Expanded
-            #print 'Expanded: ', expanded_node.config
 
             # Create board config of expanded node
             expanded_board = Board(expanded_node.config)
@@ -297,6 +304,8 @@ def bfs_search(initial_state, goal_config):
 
                 #fringe_explored_config_set.append(str(expanded_node.config))
                 fringe_explored_config_set.add(expanded_board.get_board())
+
+                nodes_expanded += 1
 
     # # Print Fringe
     # for i, state in enumerate(fringe.frontier_list):
@@ -359,17 +368,6 @@ def main():
     else:
 
         print("Enter valid command arguments !")
-
-    '''Tests'''
-    # testtuple = 0, 8, 7, 6, 5, 4, 3, 2, 1
-    #test_list = list(begin_state)
-    # print test_list
-    # toy = Board(testtuple)
-    # print toy.get_board()
-    # toy = Board(begin_state)
-    # print toy.get_board()
-    # test_frontier = Frontier()
-    # test_frontier.fenqueue(hard_state)
 
 if __name__ == '__main__':
     main()
