@@ -1,7 +1,7 @@
 import sys
 import psutil
-print("psutil", psutil.Process().memory_info().rss)
-
+# print("psutil", psutil.Process().memory_info().rss)
+#
 test_str = 'path_to_goal: '
 test_str += 'Up'
 
