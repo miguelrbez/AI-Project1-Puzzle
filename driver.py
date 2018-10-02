@@ -241,12 +241,12 @@ def bfs_search(initial_state, goal_config):
 
     nodes_expanded = 0
 
-    max_search_depth = 0
+    max_search_depth = initial_state.cost
 
     # Count to limit number of nodes to explore
     explored_nodes_count = -1
 
-    while fringe.frontier_list and explored_nodes_count < 55000:
+    while fringe.frontier_list:
 
         explored_nodes_count += 1
 
@@ -284,8 +284,10 @@ def bfs_search(initial_state, goal_config):
             path_to_goal = get_path_to_goal(current_state, explored)
             output_str_list.extend(['path_to_goal: ', str(path_to_goal), '\n', 'cost_of_path: ', str(len(path_to_goal)), '\n'])
             output_str_list.extend(['nodes_expanded: ', str(explored_nodes_count), '\n'])
-            output_str_list.extend({'search_depth: ', str(len(path_to_goal)), '\n'})
-            output_str_list.extend({'max_search_depth: ', str(3)})
+            output_str_list.extend(['search_depth: ', str(len(path_to_goal)), '\n'])
+            output_str_list.extend(['max_search_depth: ', str(max_search_depth), '\n'])
+
+            print max_search_depth
 
             return output_str_list
 
@@ -306,6 +308,10 @@ def bfs_search(initial_state, goal_config):
                 fringe_explored_config_set.add(expanded_board.get_board())
 
                 nodes_expanded += 1
+
+                # Check if it is the deepest node
+                if expanded_node.cost > max_search_depth:
+                    max_search_depth = expanded_node.cost
 
     # # Print Fringe
     # for i, state in enumerate(fringe.frontier_list):
