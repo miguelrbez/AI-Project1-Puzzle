@@ -204,16 +204,35 @@ def writeOutput(str_list):
 
         output_file.writelines(str_list)
 
+def get_path_to_goal(goal_state, explored):
+
+    path_to_goal = []
+
+    current_state_path = goal_state
+
+    explored_set_path = explored
+
+    while current_state_path.parent != None:
+
+        path_to_goal.insert(0, current_state_path.action)
+
+        current_state_path = current_state_path.parent
+
+    return path_to_goal
+
 def bfs_search(initial_state, goal_config):
 
     """BFS search"""
     print 'BFS algorithm working'
 
+    # Initialize output string list
+    output_str_list = []
+
     fringe=Frontier()
 
     fringe.fenqueue(initial_state)
 
-    explored=[]
+    explored = set()
 
     # Initialize Fringe/Explored config list
     fringe_explored_config_set = set()
@@ -223,7 +242,7 @@ def bfs_search(initial_state, goal_config):
 
     while fringe.frontier_list and count<55000:
 
-        count += 1
+        count -= 1
 
         if count%5000==0:
             print 'count ', count
@@ -233,7 +252,7 @@ def bfs_search(initial_state, goal_config):
         current_state = fringe.fdequeue()
 
         # Append exploring state to Explored
-        explored.append(current_state)
+        explored.add(current_state)
 
         # # Append current state config to Fringe/Explored config list
         # fringe_explored_config_set.append(str(current_state.config))
@@ -256,7 +275,10 @@ def bfs_search(initial_state, goal_config):
             print 'Final count: ', count
             print 'BFS algorithm stop'
 
-            return 'SUCCESS'
+            print get_path_to_goal(current_state, explored)
+            output_str_list.extend(['path_to_goal: ', str(get_path_to_goal(current_state, explored)), '\n'])
+
+            return output_str_list
 
         # Expand nodes and add them to Fringe if not there neither in Explored already
         nodes_to_expand=current_state.expand()
@@ -323,7 +345,8 @@ def main():
 
     if sm == "bfs":
 
-        print bfs_search(hard_state, goal_config)
+        #print bfs_search(hard_state, goal_config)
+        writeOutput(bfs_search(hard_state, goal_config))
 
     elif sm == "dfs":
 
@@ -347,12 +370,6 @@ def main():
     # print toy.get_board()
     # test_frontier = Frontier()
     # test_frontier.fenqueue(hard_state)
-
-    # Memory usage
-    for i in ['final', ',', psutil.Process().memory_info().rss, '\n']:
-        str_list.append(str(i))
-
-    writeOutput(str_list)
 
 if __name__ == '__main__':
     main()
