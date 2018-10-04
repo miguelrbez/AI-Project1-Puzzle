@@ -33,6 +33,8 @@ class PuzzleState(object):
 
         self.h_cost = self.calculate_h_cost()
 
+        self.total_h_cost = self.cost + self.h_cost
+
         self.children = []
 
         for i, item in enumerate(self.config):
@@ -467,11 +469,11 @@ def A_star_search(initial_state):
 
     return initial_state.calculate_h_cost()
 
-def calculate_total_cost(state):
-
-    """calculate the total estimated cost of a state"""
-
-    return state.cost + state.h_cost
+# def calculate_total_cost(state):
+#
+#     """calculate the total estimated cost of a state"""
+#
+#     return state.cost + state.h_cost
 
 # calculate the manhattan distance of a tile
 
