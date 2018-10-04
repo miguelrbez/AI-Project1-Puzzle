@@ -31,6 +31,8 @@ class PuzzleState(object):
 
         self.config = config
 
+        self.h_cost = self.calculate_h_cost()
+
         self.children = []
 
         for i, item in enumerate(self.config):
@@ -41,6 +43,19 @@ class PuzzleState(object):
                 self.blank_col = i % self.n
 
                 break
+
+    def calculate_h_cost(self):
+
+        """calculate the total estimated cost of a state"""
+
+        h_cost = 0
+
+        for i, item in enumerate(self.config):
+
+            if item != 0:
+                h_cost += calculate_manhattan_dist(i, item, self.n)
+
+        return h_cost
 
     def display(self):
 
@@ -156,14 +171,6 @@ class PuzzleState(object):
                 self.children.append(right_child)
 
         return self.children
-
-class PuzzleStateHeuristic(PuzzleState):
-
-    def __init__(self, config, n, parent=None, action="Initial", cost=0, h):
-
-        super().__init__(self, config, n, parent, action, cost)
-
-        self.h. = None# Calcular H
 
 
 class Board(object):
@@ -449,26 +456,26 @@ def dfs_search(initial_state, goal_config):
 def A_star_search(initial_state):
 
     """A * search"""
+    print 'A* algorithm working'
+
+    # Initialize output string list
+    output_str_list = []
+
     size = initial_state.n
 
     goal_config = tuple(x for x in range(size ** 2))
+
+    return initial_state.calculate_h_cost()
 
 def calculate_total_cost(state):
 
     """calculate the total estimated cost of a state"""
 
-    h_total_cost = 0
+    ### STUDENT CODE GOES HERE ###
 
-    for i, item in enumerate(state.config):
-
-        if item!= 0:
-            h_total_cost += calculate_manhattan_dist(i, item, state.n)
-
-    return h_total_cost
+# calculate the manhattan distance of a tile
 
 def calculate_manhattan_dist(idx, value, n):
-
-    """calculate the manhattan distance of a tile"""
 
     # Calculate current tile position
     current_row = idx / n
@@ -523,7 +530,7 @@ def main():
 
     elif sm == "ast":
 
-        A_star_search(hard_state)
+        print A_star_search(hard_state)
 
     else:
 
