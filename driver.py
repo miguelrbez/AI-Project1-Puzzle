@@ -157,6 +157,14 @@ class PuzzleState(object):
 
         return self.children
 
+class PuzzleStateHeuristic(PuzzleState):
+
+    def __init__(self, config, n, parent=None, action="Initial", cost=0, h):
+
+        super().__init__(self, config, n, parent, action, cost)
+
+        self.h. = None# Calcular H
+
 
 class Board(object):
 
@@ -438,6 +446,36 @@ def dfs_search(initial_state, goal_config):
 
     return 'FAILURE'
 
+def A_star_search(initial_state):
+
+    """A * search"""
+    size = initial_state.n
+
+    goal_config = tuple(x for x in range(size ** 2))
+
+def calculate_total_cost(state):
+
+    """calculate the total estimated cost of a state"""
+
+    ### STUDENT CODE GOES HERE ###
+
+def calculate_manhattan_dist(idx, value, n):
+
+    """calculate the manhattan distance of a tile"""
+
+    # Calculate current tile position
+    current_row = idx / n
+    current_col = idx % n
+
+    # Calculate goal tile position
+    goal_row = value / n
+    goal_col = value % n
+
+    manhattan_dist = abs(goal_row - current_row) + abs(goal_col - current_col)
+
+    return abs(manhattan_dist)
+
+
 def test_goal(puzzle_state, goal_config):
 
     """test the state is the goal state or not"""
@@ -449,9 +487,6 @@ def test_goal(puzzle_state, goal_config):
     else:
 
         return False
-
-    #Returns False for testing purposes
-    #return False
 
 # Main Function that reads in Input and Runs corresponding Algorithm
 

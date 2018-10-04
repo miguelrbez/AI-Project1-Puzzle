@@ -10,10 +10,7 @@ import math
 
 import psutil
 
-#### SKELETON CODE ####
-
 ## The Class that Represents the Puzzle
-
 class PuzzleState(object):
     """docstring for PuzzleState"""
 
@@ -161,46 +158,125 @@ class PuzzleState(object):
         return self.children
 
 
+class Board(object):
+
+    def __init__(self, config):
+
+        self.config = config
+
+    def get_board(self):
+
+        config_str = ''
+
+        for tile in self.config:
+            config_str += str(tile)
+
+        config_int = int(config_str)
+
+        return config_int
+
+
+# noinspection SpellCheckingInspection
+class Frontier(object):
+
+    def __init__(self):
+
+        self.frontier_list = []
+
+    def fenqueue(self, i):
+
+        self.frontier_list.append(i)
+
+    def fdequeue(self):
+
+        i = self.frontier_list[0]
+
+        self.frontier_list = self.frontier_list[1:]
+
+        return i
+
+    def fpush(self, i):
+
+        self.frontier_list.append(i)
+
+    def fpop(self):
+
+        i = self.frontier_list[-1]
+
+        self.frontier_list.pop(-1)
+
+        return i
+
+
 # Function that Writes to output.txt
+def writeOutput(str_list):
 
-### Students need to change the method to have the corresponding parameters
+    with open('output.txt', 'w') as output_file:
 
-def writeOutput():
-    pass
+        output_file.writelines(str_list)
 
-    ### Student Code Goes here
+def get_path_to_goal(goal_state, explored):
 
+    path_to_goal = []
+
+    output_str_path_and_cost = []
+
+    current_state_path = goal_state
+
+    explored_set_path = explored
+
+    while current_state_path.parent != None:
+
+        path_to_goal.insert(0, current_state_path.action)
+
+        current_state_path = current_state_path.parent
+
+    return path_to_goal
 
 def bfs_search(initial_state, goal_config):
 
     """BFS search"""
     print 'BFS algorithm working'
 
+    # Initialize output string list
+    output_str_list = []
+
     fringe=Frontier()
 
     fringe.fenqueue(initial_state)
 
-    explored=[]
+    explored = set()
 
     # Initialize Fringe/Explored config list
-    fringe_explored_config_list = []
+    fringe_explored_config_set = set()
+
+    nodes_expanded = 0
+
+    max_search_depth = initial_state.cost
 
     # Count to limit number of nodes to explore
-    count = 0
-    while fringe.frontier_list and count<54200:
-        count += 1
-        if count%5000==0:
-            print 'count ', count
+    explored_nodes_count = -1
+
+    while fringe.frontier_list:
+
+        explored_nodes_count += 1
+
+        if explored_nodes_count%5000==0:
+            print 'count ', explored_nodes_count
             print psutil.Process().memory_info().rss
 
         # Dequeue state from Fringe
         current_state = fringe.fdequeue()
 
         # Append exploring state to Explored
-        explored.append(current_state)
+        explored.add(current_state)
 
-        # Append current state config to Fringe/Explored config list
-        fringe_explored_config_list.append(current_state.config)
+        # # Append current state config to Fringe/Explored config list
+        # fringe_explored_config_set.append(str(current_state.config))
+
+        # Append current state string config to Fringe/Explored config list
+        board_config = Board(current_state.config)
+        fringe_explored_config_set.add(board_config.get_board())
 
         # Check solution
         if test_goal(current_state, goal_config):
@@ -213,33 +289,172 @@ def bfs_search(initial_state, goal_config):
             #             # for i, state in enumerate(explored):
             #             #     print 'Explored: ', i + 1, state.config
 
-            print 'Final count: ', count
+            print 'Final count: ', explored_nodes_count
             print 'BFS algorithm stop'
 
-            return 'SUCCESS'
+            path_to_goal = get_path_to_goal(current_state, explored)
+            output_str_list.extend(['path_to_goal: ', str(path_to_goal), '\n', 'cost_of_path: ', str(current_state.cost), '\n'])
+            output_str_list.extend(['nodes_expanded: ', str(explored_nodes_count), '\n'])
+            output_str_list.extend(['search_depth: ', str(len(path_to_goal)), '\n'])
+            output_str_list.extend(['max_search_depth: ', str(max_search_depth)])
+
+            print max_search_depth
+
+            return output_str_list
 
         # Expand nodes and add them to Fringe if not there neither in Explored already
         nodes_to_expand=current_state.expand()
 
         for expanded_node in nodes_to_expand:
-            # Print Expanded
-            #print 'Expanded: ', expanded_node.config
 
-            if expanded_node.config not in fringe_explored_config_list:
+            # Create board config of expanded node
+            expanded_board = Board(expanded_node.config)
+
+            #if str(expanded_node.config) not in fringe_explored_config_set:
+            if expanded_board.get_board() not in fringe_explored_config_set:
+
                 fringe.fenqueue(expanded_node)
-                fringe_explored_config_list.append(expanded_node.config)
 
-    # Print Fringe
-    for i, state in enumerate(fringe.frontier_list):
-        print 'Fringe: ', i+1, state.config
+                #fringe_explored_config_set.append(str(expanded_node.config))
+                fringe_explored_config_set.add(expanded_board.get_board())
 
-    # Print Explored
-    for i, state in enumerate(explored):
-        print 'Explored: ', i+1, state.config
+                nodes_expanded += 1
+
+                # Check if it is the deepest node
+                if expanded_node.cost > max_search_depth:
+                    max_search_depth = expanded_node.cost
+
+    # # Print Fringe
+    # for i, state in enumerate(fringe.frontier_list):
+    #     print 'Fringe: ', i+1, state.config
+    #
+    # # Print Explored
+    # for i, state in enumerate(explored):
+    #     print 'Explored: ', i+1, state.config
 
     print 'BFS algorithm stop'
 
     return 'FAILURE'
+
+def dfs_search(initial_state, goal_config):
+
+    """DFS search"""
+
+    print 'DFS algorithm working'
+
+    # Initialize output string list
+    output_str_list = []
+
+    fringe = Frontier()
+
+    fringe.fpush(initial_state)
+
+    explored = set()
+
+    # Initialize Fringe/Explored config list
+    fringe_explored_config_set = set()
+
+    nodes_expanded = 0
+
+    max_search_depth = initial_state.cost
+
+    # Count to limit number of nodes to explore
+    explored_nodes_count = -1
+
+    while fringe.frontier_list:
+
+        explored_nodes_count += 1
+
+        if explored_nodes_count % 5000 == 0:
+            print 'count ', explored_nodes_count
+            print psutil.Process().memory_info().rss
+
+        # Pop state from Fringe
+        current_state = fringe.fpop()
+
+        # Append exploring state to Explored
+        explored.add(current_state)
+
+        # Append current state string config to Fringe/Explored config list
+        board_config = Board(current_state.config)
+        fringe_explored_config_set.add(board_config.get_board())
+
+        # Check solution
+        if test_goal(current_state, goal_config):
+            # # Print Fringe
+            #             # for i, state in enumerate(fringe.frontier_list):
+            #             #     print 'Fringe: ', i + 1, state.config
+            #             #
+            #             # # Print Explored
+            #             # for i, state in enumerate(explored):
+            #             #     print 'Explored: ', i + 1, state.config
+
+            print 'Final count: ', explored_nodes_count
+            print 'DFS algorithm stop'
+
+            path_to_goal = get_path_to_goal(current_state, explored)
+            output_str_list.extend(
+                ['path_to_goal: ', str(path_to_goal), '\n', 'cost_of_path: ', str(len(path_to_goal)), '\n'])
+            output_str_list.extend(['nodes_expanded: ', str(explored_nodes_count), '\n'])
+            output_str_list.extend(['search_depth: ', str(len(path_to_goal)), '\n'])
+            output_str_list.extend(['max_search_depth: ', str(max_search_depth)])
+
+            print max_search_depth
+
+            return output_str_list
+
+        # Expand nodes and add them to Fringe if not there neither in Explored already
+        nodes_to_expand = current_state.expand()
+        nodes_to_expand = nodes_to_expand[::-1]
+
+        for expanded_node in nodes_to_expand:
+
+            # Create board config of expanded node
+            expanded_board = Board(expanded_node.config)
+
+            # if str(expanded_node.config) not in fringe_explored_config_set:
+            if expanded_board.get_board() not in fringe_explored_config_set:
+
+                fringe.fpush(expanded_node)
+
+                # fringe_explored_config_set.append(str(expanded_node.config))
+                fringe_explored_config_set.add(expanded_board.get_board())
+
+                nodes_expanded += 1
+
+                # Check if it is the deepest node
+                if expanded_node.cost > max_search_depth:
+                    max_search_depth = expanded_node.cost
+
+    # # Print Fringe
+    # for i, state in enumerate(fringe.frontier_list):
+    #     print 'Fringe: ', i+1, state.config
+    #
+    # # Print Explored
+    # for i, state in enumerate(explored):
+    #     print 'Explored: ', i+1, state.config
+
+    print 'BFS algorithm stop'
+
+    return 'FAILURE'
+
+def A_star_search(initial_state):
+
+    """A * search"""
+
+    goal_config = tuple(x for x in range(size ** 2))
+
+def calculate_total_cost(state):
+
+    """calculate the total estimated cost of a state"""
+
+    return state.cost
+
+def calculate_manhattan_dist(idx, value, n):
+
+    """calculatet the manhattan distance of a tile"""
+
+    ### STUDENT CODE GOES HERE ###
 
 def test_goal(puzzle_state, goal_config):
 
@@ -256,44 +471,6 @@ def test_goal(puzzle_state, goal_config):
     #Returns False for testing purposes
     #return False
 
-
-class Board(object):
-
-    def __init__(self, config):
-
-        self.config = config
-
-    def get_board(self):
-
-        config_str = ''
-
-        for tile in self.config:
-            config_str += str(tile)
-
-        return config_str
-
-
-# noinspection SpellCheckingInspection
-class Frontier(object):
-
-    def __init__(self):
-
-        self.frontier_list = []
-        self.frontier_config_list=[]
-
-    def fenqueue(self, i):
-
-        self.frontier_list.append(i)
-
-    def fdequeue(self):
-
-        i = self.frontier_list[0]
-
-        self.frontier_list = self.frontier_list[1:]
-
-        return i
-
-
 # Main Function that reads in Input and Runs corresponding Algorithm
 
 def main():
@@ -309,13 +486,17 @@ def main():
 
     hard_state = PuzzleState(begin_state, size)
 
+    # String list to be written in 'output.txt'
+    str_list = []
+
     if sm == "bfs":
 
-        print bfs_search(hard_state, goal_config)
+        #print bfs_search(hard_state, goal_config)
+        writeOutput(bfs_search(hard_state, goal_config))
 
     elif sm == "dfs":
 
-        dfs_search(hard_state)
+        writeOutput(dfs_search(hard_state, goal_config))
 
     elif sm == "ast":
 
@@ -324,19 +505,6 @@ def main():
     else:
 
         print("Enter valid command arguments !")
-
-    '''Tests'''
-    # testtuple = 0, 8, 7, 6, 5, 4, 3, 2, 1
-    test_list = list(begin_state)
-    # print test_list
-    # toy = Board(testtuple)
-    # print toy.get_board()
-    # toy = Board(begin_state)
-    # print toy.get_board()
-    # test_frontier = Frontier()
-    # test_frontier.fenqueue(hard_state)
-
-
 
 if __name__ == '__main__':
     main()

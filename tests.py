@@ -15,5 +15,19 @@ import psutil
 # with open('test.txt', 'w') as test_file:
 #     test_file.writelines(str_list)
 
-list=[3,3,4,5,6]
-print list[-1]
+def calculate_manhattan_dist(idx, value, n):
+    """calculate the manhattan distance of a tile"""
+
+    # Calculate current tile position
+    current_row = idx / n
+    current_col = idx % n
+
+    # Calculate goal tile position
+    goal_row = value / n
+    goal_col = value % n
+
+    manhattan_dist = abs(goal_row - current_row) + abs(goal_col - current_col)
+
+    return abs(manhattan_dist)
+
+print calculate_manhattan_dist(4,2,3)
