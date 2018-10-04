@@ -457,7 +457,14 @@ def calculate_total_cost(state):
 
     """calculate the total estimated cost of a state"""
 
-    ### STUDENT CODE GOES HERE ###
+    h_total_cost = 0
+
+    for i, item in enumerate(state.config):
+
+        if item!= 0:
+            h_total_cost += calculate_manhattan_dist(i, item, state.n)
+
+    return h_total_cost
 
 def calculate_manhattan_dist(idx, value, n):
 
@@ -474,7 +481,6 @@ def calculate_manhattan_dist(idx, value, n):
     manhattan_dist = abs(goal_row - current_row) + abs(goal_col - current_col)
 
     return abs(manhattan_dist)
-
 
 def test_goal(puzzle_state, goal_config):
 

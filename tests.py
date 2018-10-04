@@ -30,4 +30,18 @@ def calculate_manhattan_dist(idx, value, n):
 
     return abs(manhattan_dist)
 
-print calculate_manhattan_dist(4,2,3)
+def calculate_total_cost(state):
+    """calculate the total estimated cost of a state"""
+
+    h_total_cost = 0
+
+    for i, item in enumerate(config):
+
+        if item != 0:
+            h_total_cost += calculate_manhattan_dist(i, item, 3)
+
+    return h_total_cost
+
+config = (1,2,5,3,4,0,6,7,8)
+
+print 'Total cost: ', calculate_total_cost(config)
