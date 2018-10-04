@@ -471,7 +471,7 @@ def calculate_total_cost(state):
 
     """calculate the total estimated cost of a state"""
 
-    ### STUDENT CODE GOES HERE ###
+    return state.cost + state.h_cost
 
 # calculate the manhattan distance of a tile
 
