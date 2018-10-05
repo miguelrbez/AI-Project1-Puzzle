@@ -31,6 +31,10 @@ class PuzzleState(object):
 
         self.config = config
 
+        self.h_cost = self.calculate_h_cost()
+
+        self.total_h_cost = self.cost + self.h_cost
+
         self.children = []
 
         for i, item in enumerate(self.config):
@@ -41,6 +45,19 @@ class PuzzleState(object):
                 self.blank_col = i % self.n
 
                 break
+
+    def calculate_h_cost(self):
+
+        """calculate the total estimated cost of a state"""
+
+        h_cost = 0
+
+        for i, item in enumerate(self.config):
+
+            if item != 0:
+                h_cost += calculate_manhattan_dist(i, item, self.n)
+
+        return h_cost
 
     def display(self):
 
@@ -207,6 +224,46 @@ class Frontier(object):
 
         return i
 
+    def finsert(self, state_inserting):
+
+        if len(self.frontier_list)==0:
+            self.frontier_list.append(state_inserting)
+            #print 'Fringe appended: ', state_inserting.config
+
+        else:
+            for i, state_idx in enumerate(self.frontier_list):
+                #print 'Index: ', i
+                #print state_idx.config
+                #print 'Cost current state: ', state_inserting.total_h_cost
+                #print 'Cost state at index in fringe: ', state_idx.total_h_cost
+
+                if state_inserting.total_h_cost < state_idx.total_h_cost:
+                    #print 'Cost: ', state_inserting.total_h_cost
+                    #print 'State f cost less than the one in fringe index :', i
+                    self.frontier_list.insert(i, state_inserting)
+                    #print state_inserting.config, 'inserted in index: ', i
+                    break
+                if i + 1 == len(self.frontier_list):
+                    self.frontier_list.append(state_inserting)
+                    #print 'State appended at end of fringe'
+                    break
+        #print 'Fringe length: ', len(self.frontier_list)
+
+
+    def fremove_expensive(self, state):
+        #print 'Node already in fringe'
+
+        idx = 0
+
+        for i, state_idx in enumerate(self.frontier_list):
+            if state_idx.config == state.config:
+                idx = i
+                break
+
+        if state.total_h_cost < self.frontier_list[idx].total_h_cost:
+            print True
+            print 'Node in fringe index: ', idx
+            del self.frontier_list[idx]
 
 # Function that Writes to output.txt
 def writeOutput(str_list):
@@ -241,7 +298,7 @@ def bfs_search(initial_state, goal_config):
     # Initialize output string list
     output_str_list = []
 
-    fringe=Frontier()
+    fringe = Frontier()
 
     fringe.fenqueue(initial_state)
 
@@ -270,9 +327,6 @@ def bfs_search(initial_state, goal_config):
 
         # Append exploring state to Explored
         explored.add(current_state)
-
-        # # Append current state config to Fringe/Explored config list
-        # fringe_explored_config_set.append(str(current_state.config))
 
         # Append current state string config to Fringe/Explored config list
         board_config = Board(current_state.config)
@@ -310,12 +364,10 @@ def bfs_search(initial_state, goal_config):
             # Create board config of expanded node
             expanded_board = Board(expanded_node.config)
 
-            #if str(expanded_node.config) not in fringe_explored_config_set:
             if expanded_board.get_board() not in fringe_explored_config_set:
 
                 fringe.fenqueue(expanded_node)
 
-                #fringe_explored_config_set.append(str(expanded_node.config))
                 fringe_explored_config_set.add(expanded_board.get_board())
 
                 nodes_expanded += 1
@@ -438,6 +490,129 @@ def dfs_search(initial_state, goal_config):
 
     return 'FAILURE'
 
+def A_star_search(initial_state, goal_config):
+
+    """A * search"""
+    print 'A* algorithm working'
+
+    # Initialize output string list
+    output_str_list = []
+
+    # Initialize Fringe and Explored config sets
+    explored_config_set = set()
+    fringe_config_set = set()
+
+    fringe = Frontier()
+
+    fringe.fenqueue(initial_state)
+
+    initial_board_config = Board(initial_state.config)
+    fringe_config_set.add(initial_board_config.get_board())
+
+    explored = set()
+
+    max_search_depth = initial_state.cost
+
+    # Count to limit number of nodes to explore
+    explored_nodes_count = -1
+
+    while fringe.frontier_list:
+
+        explored_nodes_count += 1
+        #print 'Count: ', explored_nodes_count
+
+        if explored_nodes_count%5000==0:
+            print 'count ', explored_nodes_count
+            print psutil.Process().memory_info().rss
+
+        current_state = fringe.fdequeue()
+        #print 'Dequeue > Fringe length: ', len(fringe.frontier_list)
+
+        board_config = Board(current_state.config)
+
+        # Append exploring state to Explored
+        explored.add(current_state)
+
+        # print fringe_config_set
+        fringe_config_set.remove(board_config.get_board())
+        # print fringe_config_set
+
+        # Append current state string config to Explored config set
+        explored_config_set.add(board_config.get_board())
+
+        # Check solution
+        if test_goal(current_state, goal_config):
+
+            print 'Final count: ', explored_nodes_count
+            print 'A* algorithm stop'
+
+            path_to_goal = get_path_to_goal(current_state, explored)
+            output_str_list.extend(['path_to_goal: ', str(path_to_goal), '\n', 'cost_of_path: ', str(len(path_to_goal)), '\n'])
+            output_str_list.extend(['nodes_expanded: ', str(explored_nodes_count), '\n'])
+            output_str_list.extend(['search_depth: ', str(len(path_to_goal)), '\n'])
+            output_str_list.extend(['max_search_depth: ', str(max_search_depth)])
+
+            print 'Max search depth: ', max_search_depth
+
+            return output_str_list
+
+        # Expand nodes and add them to Fringe if not there neither in Explored already
+        nodes_to_expand = current_state.expand()
+
+        for expanded_node in nodes_to_expand:
+
+            #print 'Expanded node config: ', expanded_node.config
+            #print 'Explored', explored_config_set
+            #print 'Fringe', fringe_config_set
+
+            # Create board config of expanded node
+            expanded_board = Board(expanded_node.config)
+
+            if expanded_board.get_board() in fringe_config_set:
+                fringe.fremove_expensive(expanded_node)
+
+            if expanded_board.get_board() not in explored_config_set and expanded_board.get_board() not in fringe_config_set:
+                #print 'Not in explored/fringe'
+                fringe.finsert(expanded_node)
+                #print 'Succesfully inserted: ', expanded_node.config
+                fringe_config_set.add(expanded_board.get_board())
+
+                # Check if it is the deepest node
+                if expanded_node.cost > max_search_depth:
+                    max_search_depth = expanded_node.cost
+
+            #else:
+                #print 'Config already explored'
+                #print 'Explored', explored_config_set
+
+        #print 'Fringe lenght: ', len(fringe.frontier_list)
+
+    print 'A* algorithm stop'
+
+    return 'FAILURE'
+
+# def calculate_total_cost(state):
+#
+#     """calculate the total estimated cost of a state"""
+#
+#     return state.cost + state.h_cost
+
+# calculate the manhattan distance of a tile
+
+def calculate_manhattan_dist(idx, value, n):
+
+    # Calculate current tile position
+    current_row = idx / n
+    current_col = idx % n
+
+    # Calculate goal tile position
+    goal_row = value / n
+    goal_col = value % n
+
+    manhattan_dist = abs(goal_row - current_row) + abs(goal_col - current_col)
+
+    return abs(manhattan_dist)
+
 def test_goal(puzzle_state, goal_config):
 
     """test the state is the goal state or not"""
@@ -449,9 +624,6 @@ def test_goal(puzzle_state, goal_config):
     else:
 
         return False
-
-    #Returns False for testing purposes
-    #return False
 
 # Main Function that reads in Input and Runs corresponding Algorithm
 
@@ -482,7 +654,7 @@ def main():
 
     elif sm == "ast":
 
-        A_star_search(hard_state)
+        writeOutput(A_star_search(hard_state, goal_config))
 
     else:
 
