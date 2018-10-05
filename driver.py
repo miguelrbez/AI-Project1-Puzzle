@@ -224,6 +224,20 @@ class Frontier(object):
 
         return i
 
+    def finsert(self, state):
+
+        if len(self.frontier_list)==0:
+            self.frontier_list.append(state)
+
+        else:
+            for i in self.frontier_list:
+
+                if state.total_h_cost < i.total_h_cost:
+
+                    self.frontier_list.insert(i, state)
+
+                    break
+
 
 # Function that Writes to output.txt
 def writeOutput(str_list):
@@ -258,7 +272,7 @@ def bfs_search(initial_state, goal_config):
     # Initialize output string list
     output_str_list = []
 
-    fringe=Frontier()
+    fringe = Frontier()
 
     fringe.fenqueue(initial_state)
 
@@ -332,7 +346,6 @@ def bfs_search(initial_state, goal_config):
 
                 fringe.fenqueue(expanded_node)
 
-                #fringe_explored_config_set.append(str(expanded_node.config))
                 fringe_explored_config_set.add(expanded_board.get_board())
 
                 nodes_expanded += 1
@@ -455,7 +468,7 @@ def dfs_search(initial_state, goal_config):
 
     return 'FAILURE'
 
-def A_star_search(initial_state):
+def A_star_search(initial_state, goal_config):
 
     """A * search"""
     print 'A* algorithm working'
@@ -463,11 +476,79 @@ def A_star_search(initial_state):
     # Initialize output string list
     output_str_list = []
 
-    size = initial_state.n
+    fringe = Frontier()
 
-    goal_config = tuple(x for x in range(size ** 2))
+    fringe.fenqueue(initial_state)
 
-    return initial_state.calculate_h_cost()
+    explored = set()
+
+    # Initialize Fringe/Explored config list
+    fringe_explored_config_set = set()
+
+    max_search_depth = initial_state.cost
+
+    # Count to limit number of nodes to explore
+    explored_nodes_count = -1
+
+    while fringe.frontier_list:
+
+        explored_nodes_count += 1
+
+        if explored_nodes_count%5000==0:
+            print 'count ', explored_nodes_count
+            print psutil.Process().memory_info().rss
+
+        current_state = fringe.fdequeue()
+
+        # Append exploring state to Explored
+        explored.add(current_state)
+
+        # Append current state string config to Fringe/Explored config list
+        board_config = Board(current_state.config)
+        fringe_explored_config_set.add(board_config.get_board())
+        print 'Current board: ', board_config.get_board()
+
+        # Check solution
+        if test_goal(current_state, goal_config):
+
+            print 'Final count: ', explored_nodes_count
+            print 'A* algorithm stop'
+
+            path_to_goal = get_path_to_goal(current_state, explored)
+            output_str_list.extend(['path_to_goal: ', str(path_to_goal), '\n', 'cost_of_path: ', str(len(path_to_goal)), '\n'])
+            output_str_list.extend(['nodes_expanded: ', str(explored_nodes_count), '\n'])
+            output_str_list.extend(['search_depth: ', str(len(path_to_goal)), '\n'])
+            output_str_list.extend(['max_search_depth: ', str(max_search_depth)])
+
+            print 'Max search depth: ', max_search_depth
+
+            return output_str_list
+
+        # Expand nodes and add them to Fringe if not there neither in Explored already
+        nodes_to_expand = current_state.expand()
+
+        for expanded_node in nodes_to_expand:
+
+            # Create board config of expanded node
+            expanded_board = Board(expanded_node.config)
+
+            #if str(expanded_node.config) not in fringe_explored_config_set:
+            if expanded_board.get_board() not in fringe_explored_config_set:
+
+                fringe.finsert(expanded_node)
+                print 'Config to fringe: ', expanded_node.config
+
+                fringe_explored_config_set.add(expanded_board.get_board())
+
+                # Check if it is the deepest node
+                if expanded_node.cost > max_search_depth:
+                    max_search_depth = expanded_node.cost
+
+        print len(fringe.frontier_list)
+
+    print 'A* algorithm stop'
+
+    return 'FAILURE'
 
 # def calculate_total_cost(state):
 #
@@ -532,7 +613,7 @@ def main():
 
     elif sm == "ast":
 
-        print A_star_search(hard_state)
+        writeOutput(A_star_search(hard_state, goal_config))
 
     else:
 

@@ -45,3 +45,12 @@ def calculate_total_cost(state):
 config = (1,2,5,3,4,0,6,7,8)
 
 print 'Total cost: ', calculate_total_cost(config)
+
+hhh = sorted(list(config))
+print hhh
+for i in hhh:
+    print i
+    if 4 < i:
+        hhh.insert(i,88)
+        break
+print hhh
