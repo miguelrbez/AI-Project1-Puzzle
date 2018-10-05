@@ -250,22 +250,20 @@ class Frontier(object):
         #print 'Fringe length: ', len(self.frontier_list)
 
 
-    def freplace(self, state):
+    def fremove_expensive(self, state):
         #print 'Node already in fringe'
 
-        idx = None
+        idx = 0
 
         for i, state_idx in enumerate(self.frontier_list):
             if state_idx.config == state.config:
                 idx = i
                 break
 
-        print 'Node in fringe index: ', idx
-
         if state.total_h_cost < self.frontier_list[idx].total_h_cost:
-            return True
-        else:
-            return False
+            print True
+            print 'Node in fringe index: ', idx
+            del self.frontier_list[idx]
 
 # Function that Writes to output.txt
 def writeOutput(str_list):
@@ -532,12 +530,12 @@ def A_star_search(initial_state, goal_config):
 
         board_config = Board(current_state.config)
 
-        #print fringe_config_set
-        fringe_config_set.remove(board_config.get_board())
-        #print fringe_config_set
-
         # Append exploring state to Explored
         explored.add(current_state)
+
+        # print fringe_config_set
+        fringe_config_set.remove(board_config.get_board())
+        # print fringe_config_set
 
         # Append current state string config to Explored config set
         explored_config_set.add(board_config.get_board())
@@ -570,6 +568,9 @@ def A_star_search(initial_state, goal_config):
             # Create board config of expanded node
             expanded_board = Board(expanded_node.config)
 
+            if expanded_board.get_board() in fringe_config_set:
+                fringe.fremove_expensive(expanded_node)
+
             if expanded_board.get_board() not in explored_config_set and expanded_board.get_board() not in fringe_config_set:
                 #print 'Not in explored/fringe'
                 fringe.finsert(expanded_node)
@@ -579,11 +580,6 @@ def A_star_search(initial_state, goal_config):
                 # Check if it is the deepest node
                 if expanded_node.cost > max_search_depth:
                     max_search_depth = expanded_node.cost
-
-            elif expanded_board.get_board() not in explored_config_set:
-                fringe.freplace(expanded_node)
-                print fringe.freplace(expanded_node)
-                fringe_config_set.add(expanded_board.get_board())
 
             #else:
                 #print 'Config already explored'
